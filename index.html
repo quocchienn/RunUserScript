@@ -3,40 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Run UserScript</title>
+    <title>UserScript Generator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            text-align: center;
         }
         textarea {
-            width: 100%;
-            height: 300px;
+            width: 80%;
+            height: 200px;
             font-family: monospace;
+            margin-top: 10px;
         }
         button {
             padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
+            margin-top: 10px;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Run Your UserScript</h1>
-    <textarea id="scriptInput" placeholder="Paste your UserScript here..."></textarea><br><br>
-    <button onclick="runUserScript()">Run Script</button>
+    <h1>Generate & Install UserScript</h1>
+    <textarea id="scriptInput" placeholder="// Enter your UserScript code here..."></textarea><br>
+    <button onclick="downloadUserScript()">Download UserScript</button>
+    <button onclick="runUserScript()">Run Locally</button>
 
     <script>
+        function downloadUserScript() {
+            const userScriptContent = document.getElementById('scriptInput').value;
+            const metadata = `// ==UserScript==
+// @name         Custom Script
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  User script generated from website
+// @match        *://*/*
+// @grant        none
+// ==/UserScript==
+
+`;
+
+            const blob = new Blob([metadata + userScriptContent], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'custom-script.user.js';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
         function runUserScript() {
-            const userScript = document.getElementById('scriptInput').value;
-            
             try {
-                eval(userScript);  // Chạy UserScript
-                alert('Script executed successfully!');
+                const userScript = document.getElementById('scriptInput').value;
+                const script = document.createElement('script');
+                script.textContent = userScript;
+                document.documentElement.appendChild(script);
+                script.remove();
+                alert("Script executed successfully!");
             } catch (e) {
-                alert('Error in script: ' + e.message);
+                alert("Error in script: " + e.message);
             }
         }
     </script>
